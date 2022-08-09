@@ -52,7 +52,7 @@ class CharacterService {
 
     async delete(id) {
         const character = await this.findOne(id)
-        character.destroy();
+        await character.destroy();
         return id;
     }
 

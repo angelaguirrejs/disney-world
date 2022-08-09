@@ -61,7 +61,7 @@ class MovieService {
 
     async delete(id) {
         const movie = await this.findOne(id);
-        movie.destroy();
+        await movie.destroy();
         return id;
     }
 }
