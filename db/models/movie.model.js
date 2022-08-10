@@ -1,4 +1,5 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
+const { GENDER_TABLE } = require('./gender.model');
 
 const MOVIE_TABLE = 'movies';
 
@@ -28,12 +29,29 @@ const MovieSchema = {
         type: DataTypes.DATE,
         defaultValue: Sequelize.NOW
     },
+    genderId: {
+        field: 'gender_id',
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: {
+            model: GENDER_TABLE,
+            key: 'id'
+        }
+    }
 }
 
 class Movie extends Model {
 
-    static associate() {
-
+    static associate(models) {
+        this.belongsTo(models.Gender, {
+            as: 'gender'
+        });
+        this.belongsToMany(models.Character, {
+            as: 'characters',
+            through: models.CharacterMovie,
+            foreignKey: 'movieId',
+            otherKey: 'characterId'
+        });
     }
 
     static config(sequelize) {

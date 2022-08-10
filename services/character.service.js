@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const boom = require('@hapi/boom');
+
 const { models } = require('../libs/sequelize');
 
 class CharacterService {
@@ -10,29 +11,38 @@ class CharacterService {
 
     async find({ name, age, movie }) {
 
-        const rules = {}
+        const options = {
+            attributes: ['id', 'image', 'name'],
+            where: {},
+        }
 
         if(name) {
-            rules.name= {
+            options.where.name = {
                 [Op.substring]: name,
             }
         }
 
+        if(movie) {
+            options.include = 'movies';
+            Object.assign(options.where, {
+                '$movies.id$' : movie
+            });
+        }
+
         if(age) {
-            rules.age = {
+            options.where.age = {
                 [Op.eq]: age
             }
         }
 
-        return await models.Character.findAll({
-            attributes: ['image', 'name'],
-            where: rules
-        });
+        return await models.Character.findAll(options);
     }
 
     async findOne(id) {
 
-        const character = await models.Character.findByPk(id);
+        const character = await models.Character.findByPk(id, {
+            include: 'movies',
+        });
 
         if(!character) {
             throw boom.notFound('Character not found');

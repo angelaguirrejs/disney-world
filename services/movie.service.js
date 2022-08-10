@@ -19,16 +19,19 @@ class MovieService {
         }
 
         if(genre) {
-
+            rules.genderId = genre;
         }
 
         const options = {
-            attributes: ['image', 'title', 'created_at'],
+            attributes: ['id', 'image', 'title', 'created_at'],
             where: rules,
         }
 
         if(order) {
-            if(order.toUpperCase() != 'ASC' || order.toUpperCase() != 'DESC') {
+
+            console.log(order.toUpperCase());
+
+            if(order.toUpperCase() !== 'ASC' && order.toUpperCase() !== 'DESC') {
                 throw boom.badRequest('The order value is not correct, must be ASC or DESC');
             }
             options.order = [
@@ -41,7 +44,9 @@ class MovieService {
     }
 
     async findOne(id) {
-        const movie = await models.Movie.findByPk(id);
+        const movie = await models.Movie.findByPk(id, {
+            include: ['gender', 'characters']
+        });
 
         if(!movie) {
             throw boom.notFound('Movie not found');

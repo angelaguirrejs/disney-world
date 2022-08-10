@@ -8,9 +8,13 @@ const service = new movieService();
 const router = express.Router();
 
 
-router.get('/', async(req, res) => {
-    const movies = await service.find(req.query);
-    res.status(200).json({data: movies});
+router.get('/', async(req, res, next) => {
+    try {
+        const movies = await service.find(req.query);
+        res.status(200).json({data: movies});
+    } catch (error) {
+        next(error);
+    }
 });
 
 router.get('/:id', async(req, res, next) => {

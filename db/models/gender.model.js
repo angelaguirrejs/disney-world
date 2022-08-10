@@ -28,8 +28,11 @@ const GenderSchema = {
 
 class Gender extends Model {
 
-    static associate() {
-
+    static associate(models) {
+        this.hasMany(models.Movie, {
+            as: 'Movies',
+            foreignKey: 'genderId'
+        });
     }
 
     static config(sequelize) {
