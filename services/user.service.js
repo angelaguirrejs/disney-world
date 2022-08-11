@@ -1,5 +1,6 @@
 const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
+const { sendWelcomeEmail } = require('../utils/mail/sender');
 
 class UserService {
 
@@ -36,6 +37,9 @@ class UserService {
 
     async create(data) {
         const createdUser = await models.User.create(data);
+        sendWelcomeEmail(createdUser).catch(error => {
+            console.log(error);
+        });
         delete createdUser.dataValues.password;
         return createdUser;
     }
