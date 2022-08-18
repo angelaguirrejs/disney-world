@@ -1,11 +1,12 @@
+const path = require('path');
+const fs = require('fs');
+
 const express = require('express');
 const router = express.Router();
+const boom = require('@hapi/boom');
 
-const { createCharacterSchema, updateCharacterSchema } = require('../schemas/character.schema');
-
-const upload = require('../middlewares/upload.handler');
+const { createCharacterSchema, updateCharacterSchema, imageSchema } = require('../schemas/character.schema');
 const validatorHandler = require('../middlewares/validator.handler');
-
 const CharactertService = require('../services/character.service');
 
 const service = new CharactertService();
@@ -34,13 +35,24 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
+router.get('/image/:fileName', (req, res, next) => {
+    const pathImage = path.join(__dirname, '../uploads', '/characters/', req.params.fileName);
+
+    if(!fs.existsSync(pathImage)) {
+        next(boom.notFound('Image not found'));
+    }
+
+    res.sendFile(pathImage);
+});
+
 // Create a new character
 
 router.post('/',
     validatorHandler(createCharacterSchema, 'body'),
+    validatorHandler(imageSchema, 'files'),
     async (req, res, next) => {
         try {
-            const newCharacter = await service.create(req.body);
+            const newCharacter = await service.create(req);
             res.status(201).json(newCharacter);
         } catch (error) {
             next(error);
@@ -51,12 +63,9 @@ router.post('/',
 router.put('/:id',
     validatorHandler(updateCharacterSchema, 'body'),
     async (req, res, next) => {
-
         try {
-
-            const updatedCharacter = await service.update(req.params.id, req.body);
+            const updatedCharacter = await service.update(req.params.id, req);
             res.status(200).json(updatedCharacter);
-
         } catch (error) {
             next(error);
         }
@@ -66,10 +75,8 @@ router.put('/:id',
 
 router.delete('/:id', async (req, res, next) => {
     try {
-
         const deletedId = await service.delete(req.params.id);
         res.status(200).json({id: deletedId});
-
     } catch (error) {
         next(error);
     }

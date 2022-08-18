@@ -1,10 +1,10 @@
 const express = require('express');
-const passport = require('passport');
 const cors = require('cors');
 
 const routerApi = require('./routes');
 
 const { logErrors, errorHandler, boomErrorHandler } = require('./middlewares/error.hanlder');
+const fileUpload = require('express-fileupload');
 
 const app = express();
 
@@ -12,13 +12,20 @@ const port = 3000;
 
 // Middlewares
 
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: './uploads/temp/',
+    createParentPath: true
+}))
 require('./utils/auth');
 
 //Routes
 
 routerApi(app);
+
+// Middlewares
 
 app.use(boomErrorHandler);
 app.use(logErrors);

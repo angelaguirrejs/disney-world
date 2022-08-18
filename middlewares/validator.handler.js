@@ -5,7 +5,9 @@ function validatorHandler(schema, property) {
 
         const data = req[property];
 
-        console.log(data);
+        if(data == null && property === 'files') {
+            next(boom.badData('No image was sent'));
+        }
 
         const { error }  = schema.validate(data, { abortEarly: false });
 
