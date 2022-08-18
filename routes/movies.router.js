@@ -3,39 +3,48 @@ const fs = require('fs');
 
 const express = require('express');
 const boom = require('@hapi/boom');
+const passport = require('passport');
+
 
 const { createMovieSchema, updateMovieSchema, imageSchema } = require('../schemas/movie.schema');
 const validatorHandler = require('../middlewares/validator.handler');
 const movieService = require('../services/movie.service');
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
 const service = new movieService();
 const router = express.Router();
 
 
-router.get('/', async(req, res, next) => {
-    try {
-        const movies = await service.find(req.query);
-        res.status(200).json({data: movies});
-    } catch (error) {
-        next(error);
+router.get('/',
+    jwtAuth,
+    async (req, res, next) => {
+        try {
+            const movies = await service.find(req.query);
+            res.status(200).json({ data: movies });
+        } catch (error) {
+            next(error);
+        }
     }
-});
+);
 
-router.get('/:id', async(req, res, next) => {
+router.get('/:id',
+    jwtAuth,
+    async (req, res, next) => {
 
-    try {
-        const movie = await service.findOne(req.params.id);
-        res.status(200).json({data: movie});
-    } catch (error) {
-        next(error);
+        try {
+            const movie = await service.findOne(req.params.id);
+            res.status(200).json({ data: movie });
+        } catch (error) {
+            next(error);
+        }
     }
-});
+);
 
 router.get('/image/:fileName', (req, res, next) => {
 
     const pathImage = path.join(__dirname, '../uploads', '/movies/', req.params.fileName);
 
-    if(!fs.existsSync(pathImage)) {
+    if (!fs.existsSync(pathImage)) {
         next(boom.notFound('Image not found'));
     }
 
@@ -43,12 +52,13 @@ router.get('/image/:fileName', (req, res, next) => {
 })
 
 router.post('/',
+    jwtAuth,
     validatorHandler(createMovieSchema, 'body'),
     validatorHandler(imageSchema, 'files'),
     async (req, res, next) => {
         try {
             const newMovie = await service.create(req);
-            res.status(201).json({data: newMovie});
+            res.status(201).json({ data: newMovie });
         } catch (error) {
             next(error)
         }
@@ -56,24 +66,28 @@ router.post('/',
 );
 
 router.put('/:id',
+    jwtAuth,
     validatorHandler(updateMovieSchema, 'body'),
     async (req, res, next) => {
         try {
             const updatedMovie = await service.update(req.params.id, req);
-            return res.status(200).json({data: updatedMovie});
+            return res.status(200).json({ data: updatedMovie });
         } catch (error) {
             next(error);
         }
     }
 )
 
-router.delete('/:id', async(req, res, next) => {
-    try {
-        const deletedId = await service.delete(req.params.id);
-        res.status(200).json({id: deletedId});
-    } catch (error) {
-        next(error);
+router.delete('/:id',
+    jwtAuth,
+    async (req, res, next) => {
+        try {
+            const deletedId = await service.delete(req.params.id);
+            res.status(200).json({ id: deletedId });
+        } catch (error) {
+            next(error);
+        }
     }
-});
+);
 
 module.exports = router;

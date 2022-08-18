@@ -9,9 +9,9 @@ const authRouter = require('./auth.router');
 const jwtAuth = passport.authenticate('jwt', { session: false })
 
 function routerApi(app) {
-    app.use('/characters', jwtAuth, charactersRouter);
-    app.use('/movies', jwtAuth, moviesRouter);
-    app.use('/genders', jwtAuth, genderRouter);
+    app.use('/characters', charactersRouter);
+    app.use('/movies', moviesRouter);
+    app.use('/genders', genderRouter);
     app.use('/characters-movies', jwtAuth, characterMovieRouter);
     app.use('/auth', authRouter);
 }
