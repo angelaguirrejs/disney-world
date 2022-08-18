@@ -1,6 +1,11 @@
+const path = require('path');
+const fs = require('fs');
+
 const { Op } = require('sequelize');
 const boom = require('@hapi/boom');
+
 const { models } = require('../libs/sequelize');
+const { imageUploader } = require('../utils/images/uploader');
 
 class MovieService {
 
@@ -55,17 +60,46 @@ class MovieService {
         return movie;
     }
 
-    async create(data) {
+    async create(req) {
+
+        const data = req.body;
+
+        const fileName = await imageUploader(req.files, 'movies');
+        data.image = fileName;
+
         return await models.Movie.create(data);
     }
 
-    async update(id, changes) {
+    async update(id, req) {
+
         const movie = await this.findOne(id);
+        const changes = req.body;
+
+        if(req.files && req.files.image) {
+
+            const fileName = await imageUploader(req.files, 'movies');
+            changes.image = fileName
+
+            if(movie.image) {
+                const pathImage = path.join(__dirname , '../uploads/movies/', movie.image);
+
+                if(fs.existsSync(pathImage)) {
+                    fs.unlinkSync(pathImage);
+                }
+            }
+        }
+
         return await movie.update(changes);
     }
 
     async delete(id) {
         const movie = await this.findOne(id);
+        const pathImage = path.join(__dirname , '../uploads/movies/', movie.image);
+
+        if(fs.existsSync(pathImage)) {
+            fs.unlinkSync(pathImage);
+        }
+
         await movie.destroy();
         return id;
     }
