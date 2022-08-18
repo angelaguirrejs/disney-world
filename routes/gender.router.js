@@ -1,7 +1,11 @@
+const path = require('path');
+const fs = require('fs');
+
 const express = require('express');
+const boom = require('@hapi/boom');
 
 const validationHandler = require('../middlewares/validator.handler');
-const { createGenderSchema, updateGenderSchema } = require('../schemas/gender.schema');
+const { createGenderSchema, updateGenderSchema, imageSchema } = require('../schemas/gender.schema');
 
 const genderService = require('../services/gender.service');
 
@@ -22,11 +26,22 @@ router.get('/:id', async(req, res, next) => {
     }
 });
 
+router.get('/image/:fileName', (req, res, next) => {
+    const pathImage = path.join(__dirname, '../uploads', '/genders/', req.params.fileName);
+
+    if(!fs.existsSync(pathImage)) {
+        next(boom.notFound('Image not found'));
+    }
+
+    res.sendFile(pathImage);
+})
+
 router.post('/',
     validationHandler(createGenderSchema, 'body'),
+    validationHandler(imageSchema, 'files'),
     async (req, res, next) => {
         try {
-            const newGender = await service.create(req.body);
+            const newGender = await service.create(req);
             res.status(201).json({data: newGender});
         } catch (error) {
             next(error);
@@ -38,7 +53,7 @@ router.put('/:id',
     validationHandler(updateGenderSchema, 'body'),
     async (req, res, next) => {
         try {
-            const updatedGender = await service.update(req.params.id, req.body);
+            const updatedGender = await service.update(req.params.id, req);
             res.status(200).json({data: updatedGender});
         } catch (error) {
             next(error);

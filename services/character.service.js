@@ -77,10 +77,10 @@ class CharacterService {
             if(character.image) {
                 const pathImage = path.join(__dirname , '../uploads/characters/', character.image);
 
-                if(!fs.existsSync(pathImage)) {
-                    throw boom.notFound("Character's image not found");
+                if(fs.existsSync(pathImage)) {
+                    fs.unlinkSync(pathImage);
                 }
-                fs.unlinkSync(pathImage);
+
             }
         }
 
@@ -91,7 +91,9 @@ class CharacterService {
         const character = await this.findOne(id)
         const pathImage = path.join(__dirname , '../uploads/characters/', character.image);
 
-        fs.unlinkSync(pathImage);
+        if(fs.existsSync(pathImage)) {
+            fs.unlinkSync(pathImage);
+        }
 
         await character.destroy();
         return id;
