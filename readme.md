@@ -1,6 +1,6 @@
 # Disney World API
 
-This project is an API that provides endpoints to manag the following resources:
+This project is an API that provides endpoints to manage the following resources:
 - movies.
 - characters.
 - genders.
@@ -21,7 +21,7 @@ Before using you must set values for some env variables and you can find them in
 
 ## General information
 
-In order to use it you must get a token and you can get it by auth. When you register you'll receive an email with welcome message and the **bearer token** as response.
+In order to use it you must get a token and you can get it by auth. When you register you'll receive an email with welcome message and the **bearer token** as a response.
 
 ## Commands
 
