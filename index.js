@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use(fileUpload({
     useTempFiles: true,
-    tempFileDir: './uploads/temp/',
+    tempFileDir: '/temp/',
     createParentPath: true
 }))
 require('./utils/auth');
