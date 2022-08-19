@@ -7,19 +7,27 @@ const characterMovieService = require('../services/character-movie.service');
 const router = express.Router();
 const service = new characterMovieService();
 
-router.get('/', async(req, res) => {
+/**
+ * If you want to get all records in the pivot table uncomment this route
+ */
+
+/*router.get('/', async(req, res) => {
     const data = await service.find();
     res.status(200).json({data})
-});
+});*/
 
-router.get('/:id', async(req, res, next) => {
+/**
+ * If you want to get one record in the pivot table uncomment this route
+ */
+
+/*router.get('/:id', async(req, res, next) => {
     try {
         const characterMovie = await service.findOne(req.params.id);
         res.status(200).json(characterMovie);
     } catch (error) {
         next(error);
     }
-})
+})*/
 
 router.post('/',
     validatorHandler(addCharacterMovieSchema, 'body'),
@@ -33,7 +41,11 @@ router.post('/',
     }
 );
 
-router.put('/:id',
+/**
+ * If you want to update a record in the pivot table uncomment this route
+ */
+
+/*router.put('/:id',
     validatorHandler(updateCharacterMovieSchema, 'body'),
     async (req, res, next) => {
         try {
@@ -43,12 +55,12 @@ router.put('/:id',
             next(error);
         }
     }
-)
+)*/
 
 router.delete('/:id', async(req, res, next) => {
     try {
         const deletedId = await service.delete(req.params.id);
-        res.status(200).json(deletedId);
+        res.status(200).json({id: deletedId});
     } catch (error) {
         next(error);
     }

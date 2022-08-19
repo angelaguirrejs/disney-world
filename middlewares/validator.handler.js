@@ -6,13 +6,13 @@ function validatorHandler(schema, property) {
         const data = req[property];
 
         if(data == null && property === 'files') {
-            next(boom.badData('No image was sent'));
+            next(boom.badRequest('No image was sent'));
         }
 
         const { error }  = schema.validate(data, { abortEarly: false });
 
         if(error) {
-            next(boom.badData(error));
+            next(boom.badRequest(error));
         }
 
         next();
